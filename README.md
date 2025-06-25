@@ -9,5 +9,6 @@ PROMPTS:
 - necesito que el nuevo index sea solo en php
 - necesito que al iniciar sesion me rediriga a proyectos
 - necesito que al iniciar sesión me redirija a proyectos.php y no al index
-  
-- https://teclab.uct.cl/~mauricio.mora/
+- necesito que al eliminar un proyecto no se cierre sesion automaticamente
+
+  https://teclab.uct.cl/~mauricio.mora/
