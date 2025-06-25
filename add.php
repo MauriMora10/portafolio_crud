@@ -7,31 +7,41 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $descripcion = trim($_POST['descripcion']);
   $url_github = trim($_POST['url_github']);
   $url_produccion = trim($_POST['url_produccion']);
+  $imagenNombre = null;
 
-  if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
-    $imagenTmp = $_FILES['imagen']['tmp_name'];
-    $imagenNombre = basename($_FILES['imagen']['name']);
-    $uploadDir = "uploads/";
-    $uploadFile = $uploadDir . $imagenNombre;
+  if (isset($_FILES['imagen']) && $_FILES['imagen']['error'] !== UPLOAD_ERR_NO_FILE) {
+    if ($_FILES['imagen']['error'] === UPLOAD_ERR_OK) {
+      $imagenTmp = $_FILES['imagen']['tmp_name'];
+      $imagenNombre = basename($_FILES['imagen']['name']);
+      $uploadDir = "uploads/";
+      $uploadFile = $uploadDir . $imagenNombre;
 
-    if (move_uploaded_file($imagenTmp, $uploadFile)) 
-    {
-      $stmt = $conn->prepare("INSERT INTO proyectos (titulo, descripcion, url_github, url_produccion, imagen) VALUES (?, ?, ?, ?, ?)");
-      $stmt->bind_param("sssss", $titulo, $descripcion, $url_github, $url_produccion, $imagenNombre);
-      $stmt->execute();
-      $stmt->close();
+      // Validar tamaño y tipo de archivo
+      $maxSize = 2 * 1024 * 1024; // 2 MB
+      $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
-      header("Location: proyectos.php");
-      exit;
-    } 
-    else 
-    {
-      $error = "Error al subir la imagen.";
+      if ($_FILES['imagen']['size'] > $maxSize) {
+        $error = "El archivo es demasiado grande.";
+      } elseif (!in_array($_FILES['imagen']['type'], $allowedTypes)) {
+        $error = "Tipo de archivo no permitido.";
+      } else {
+        if (!move_uploaded_file($imagenTmp, $uploadFile)) {
+          $error = "Error al subir la imagen.";
+        }
+      }
+    } else {
+      $error = "Error al subir la imagen. Código: " . $_FILES['imagen']['error'];
     }
-  } 
-  else 
-  {
-    $error = "Debe subir una imagen válida.";
+  }
+
+  if (empty($error)) {
+    $stmt = $conn->prepare("INSERT INTO proyectos (titulo, descripcion, url_github, url_produccion, imagen) VALUES (?, ?, ?, ?, ?)");
+    $stmt->bind_param("sssss", $titulo, $descripcion, $url_github, $url_produccion, $imagenNombre);
+    $stmt->execute();
+    $stmt->close();
+
+    header("Location: proyectos.php");
+    exit;
   }
 }
 ?>
@@ -58,8 +68,8 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     <input type="url" name="url_github" id="url_github" placeholder="URL GitHub">
     <label for="url_produccion">URL Producción</label>
     <input type="url" name="url_produccion" id="url_produccion" placeholder="URL Producción">
-    <label for="imagen">Imagen</label>
-    <input type="file" name="imagen" id="imagen" accept="image/*" required>
+    <label for="imagen">Imagen (opcional)</label>
+    <input type="file" name="imagen" id="imagen" accept="image/*">
     <button type="submit">Guardar</button>
   </form>
 </body>
