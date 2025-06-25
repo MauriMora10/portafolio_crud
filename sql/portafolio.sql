@@ -1,5 +1,5 @@
 CREATE DATABASE mauricio_mora;
-USE mauricio_mora;
+USE mauricio_mora_db1;
 
 CREATE TABLE users (
   id INT AUTO_INCREMENT PRIMARY KEY,
