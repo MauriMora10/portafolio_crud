@@ -16,7 +16,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       $uploadDir = "uploads/";
       $uploadFile = $uploadDir . $imagenNombre;
 
-      // Validar tamaño y tipo de archivo
       $maxSize = 2 * 1024 * 1024; // 2 MB
       $allowedTypes = ['image/jpeg', 'image/png', 'image/gif'];
 
